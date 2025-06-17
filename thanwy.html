@@ -1,0 +1,695 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>english revision ثانوية عامة</title>
+  <style>
+    :root {
+      --question-font-size: 24px;
+      --option-font-size: 18px;
+      --primary-text-color: #ffffff;
+      --accent-color: #b5ead7;
+    }
+
+    /* ==== BASE STYLING ==== */
+    body {
+      margin: 0;
+      font-family: 'Segoe UI', sans-serif;
+      background: linear-gradient(-45deg, #1f1f1f, #383838, #f7cac9, #b5ead7);
+      background-size: 400% 400%;
+      animation: gradientShift 15s ease infinite;
+      color: var(--primary-text-color);
+      overflow-x: hidden;
+    }
+
+    @keyframes gradientShift {
+      0% { background-position: 0% 50%; }
+      50% { background-position: 100% 50%; }
+      100% { background-position: 0% 50%; }
+    }
+
+    /* ==== TOP NAVIGATION BAR ==== */
+    #top-bar {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      background: rgba(0, 0, 0, 0.5);
+      backdrop-filter: blur(10px);
+      padding: 12px 30px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      z-index: 999;
+    }
+
+    #top-bar h1 {
+      font-size: 22px;
+      margin: 0;
+      letter-spacing: 1px;
+      text-transform: uppercase;
+    }
+
+    #top-bar button {
+      background: rgba(255, 255, 255, 0.1);
+      color: #fff;
+      border: none;
+      padding: 8px 16px;
+      margin-left: 10px;
+      border-radius: 6px;
+      cursor: pointer;
+      transition: 0.3s;
+    }
+
+    #top-bar button:hover {
+      background: rgba(255, 255, 255, 0.3);
+    }
+
+    /* ==== MAIN CONTAINER ==== */
+    #quiz-container {
+      margin: 120px auto 60px;
+      width: 90%;
+      max-width: 700px;
+      background: rgba(255, 255, 255, 0.05);
+      border-radius: 18px;
+      padding: 40px 30px;
+      backdrop-filter: blur(15px);
+      box-shadow: 0 10px 40px rgba(0,0,0,0.5);
+      text-align: center;
+    }
+
+    h2 {
+      font-size: var(--question-font-size);
+      margin-bottom: 30px;
+      font-weight: 600;
+      text-shadow: 1px 1px 4px rgba(0,0,0,0.4);
+    }
+
+    .option {
+      display: block;
+      background: rgba(255, 255, 255, 0.2);
+      border: none;
+      font-size: var(--option-font-size);
+      padding: 16px;
+      width: 100%;
+      margin: 12px 0;
+      border-radius: 12px;
+      cursor: pointer;
+      color: white;
+      transition: all 0.3s ease;
+    }
+
+    .option:hover {
+      background-color: var(--accent-color);
+      color: #111;
+      font-weight: bold;
+      transform: scale(1.03);
+    }
+
+    .option.correct { background-color: #4CAF50; color: #fff; }
+    .option.incorrect { background-color: #f44336; color: #fff; animation: shake 0.3s; }
+
+    @keyframes shake {
+      0%, 100% { transform: translateX(0); }
+      25% { transform: translateX(-5px); }
+      75% { transform: translateX(5px); }
+    }
+
+    .faded { opacity: 0.5; pointer-events: none; }
+
+    .nav-buttons {
+      margin-top: 25px;
+      display: flex;
+      justify-content: space-between;
+    }
+
+    .nav-buttons button {
+      background: rgba(0, 0, 0, 0.4);
+      color: white;
+      border: none;
+      padding: 10px 20px;
+      border-radius: 8px;
+      cursor: pointer;
+      transition: 0.3s ease;
+    }
+
+    .nav-buttons button:hover {
+      background-color: var(--accent-color);
+      color: #111;
+    }
+
+    #progress {
+      margin-top: 20px;
+      font-size: 16px;
+      color: #eee;
+    }
+
+    #settings-panel {
+      position: fixed;
+      right: 20px;
+      top: 70px;
+      background: rgba(0,0,0,0.8);
+      border: 1px solid #444;
+      border-radius: 12px;
+      padding: 15px;
+      width: 220px;
+      z-index: 999;
+      color: white;
+      display: none;
+    }
+
+    #settings-panel label {
+      display: block;
+      margin-top: 12px;
+      font-size: 14px;
+    }
+
+    #settings-panel input[type=range] {
+      width: 100%;
+    }
+
+    #toggle-settings {
+      background: rgba(255,255,255,0.15);
+      color: #fff;
+      border: none;
+      padding: 8px 14px;
+      border-radius: 6px;
+      cursor: pointer;
+    }
+  </style>
+</head>
+<body>
+
+  <!-- NAVIGATION -->
+  <div id="top-bar">
+    <hحفظ من غير حفظ
+    </h1>
+    <div>
+            <button onclick="if(confirm('هل أنت متأكد أنك تريد البدء من جديد؟ سيتم فقد التقدم الحالي.')) loadQuestion(0);">حل من الأول و جديد</button>
+
+      <button id="toggle-settings">⚙️ Settings</button>
+    </div>
+  </div>
+
+  <!-- SETTINGS PANEL -->
+  <div id="settings-panel">
+    <label for="fontSizeQ">Question Font Size</label>
+    <input type="range" id="fontSizeQ" min="16" max="36" value="24">
+
+    <label for="fontSizeOpt">Option Font Size</label>
+    <input type="range" id="fontSizeOpt" min="14" max="28" value="18">
+
+    <label><input type="checkbox" id="toggleAnim" checked /> Enable Animation</label>
+
+    <label><input type="checkbox" id="switchColor" /> Soft Mode</label>
+  </div>
+
+  <!-- MAIN QUIZ AREA -->
+  <div id="quiz-container">
+    <h2 id="question">Loading...</h2>
+    <div id="options"></div>
+
+    <div class="nav-buttons">
+      <button onclick="prevQuestion()">← Back</button>
+      <button onclick="nextQuestion()">Next →</button>
+    </div>
+
+    <div id="progress"></div>
+  </div>
+  
+
+  <script>
+const questions = [
+  {
+    question: "What does 'demand' mean? (يطلب)",
+    options: ["to offer", "to explain", "to demand", "to regret"],
+    answer: "to demand"
+  },
+  {
+    question: "She continued to ___ an apology from the manager. (تطلب)",
+    options: ["demand", "ignore", "receive", "translate"],
+    answer: "demand"
+  },
+  {
+    question: "'Compensate' means... (يعوض)",
+    options: ["hurt", "compensate", "change", "forget"],
+    answer: "compensate"
+  },
+  {
+    question: "The company promised to ___ the worker for his injury. (يعوض)",
+    options: ["compensate", "blame", "punish", "deny"],
+    answer: "compensate"
+  },
+  {
+    question: "What is the Arabic meaning of 'casualty'?",
+    options: ["مصاب/قتيل", "نجاح", "فكرة", "مزارع"],
+    answer: "مصاب/قتيل"
+  },
+  {
+    question: "There was only one ___ in the accident. (مصاب)",
+    options: ["goal", "solution", "casualty", "object"],
+    answer: "casualty"
+  },
+  {
+    question: "'Bias' means... (انحياز)",
+    options: ["clarity", "plan", "bias", "truth"],
+    answer: "bias"
+  },
+  {
+    question: "The article showed a clear ___ toward one side. (انحياز)",
+    options: ["bias", "fact", "benefit", "reform"],
+    answer: "bias"
+  },
+  {
+    question: "'Omission' means... (إغفال)",
+    options: ["inclusion", "omission", "highlight", "focus"],
+    answer: "omission"
+  },
+  {
+    question: "The ___ of his name from the list surprised us. (إغفال)",
+    options: ["removal", "omission", "addition", "change"],
+    answer: "omission"
+  },
+  {
+    question: "What does 'persuade' mean? (يقنع)",
+    options: ["to lie", "to run", "to convince", "to persuade"],
+    answer: "to persuade"
+  },
+  {
+    question: "Can you ___ her to join the team? (يقنع)",
+    options: ["persuade", "push", "order", "teach"],
+    answer: "persuade"
+  },
+  {
+    question: "What does 'pun' mean in Arabic? (تورية)",
+    options: ["مزحة", "تورية", "قصيدة", "قافية"],
+    answer: "تورية"
+  },
+  {
+    question: "He made a clever __ in his speech. (تورية)",
+    options: ["pun", "plan", "talk", "quote"],
+    answer: "pun"
+  },
+  {
+    question: "'Reroute' means... (يغير الاتجاه)",
+    options: ["to delay", "to reroute", "to cancel", "to land"],
+    answer: "to reroute"
+  },
+  {
+    question: "They had to ___ the flight because of bad weather. (يغير المسار)",
+    options: ["reroute", "postpone", "launch", "board"],
+    answer: "reroute"
+  },
+  {
+    question: "'Restate' means... (يعيد الصياغة)",
+    options: ["to forget", "to restate", "to argue", "to claim"],
+    answer: "to restate"
+  },
+  {
+    question: "Could you ___ your point in a simpler way? (تعيد الصياغة)",
+    options: ["resta te", "confuse", "delete", "translate"],
+    answer: "restate"
+  },
+  {
+    question: "'Nosy' means... (فضولي)",
+    options: ["brave", "nosy", "polite", "clever"],
+    answer: "nosy"
+  },
+  {
+    question: "He’s too ___; always asking personal questions. (فضولي)",
+    options: ["nosy", "smart", "shy", "strict"],
+    answer: "nosy"
+  },
+  {
+    question: "'Tabloid' means... (صحيفة شعبية)",
+    options: ["magazine", "document", "tabloid", "journal"],
+    answer: "tabloid"
+  },
+  {
+    question: "The ___ was full of celebrity gossip. (صحيفة شعبية)",
+    options: ["tabloid", "manual", "novel", "textbook"],
+    answer: "tabloid"
+  },
+  // Keep adding similar MCQs with variety and repetition
+
+  // — Part A: With Arabic Translations —
+
+  // demand
+  {
+    question: "What does 'demand' mean? (يطلب بحزم)",
+    options: ["to offer", "to demand", "to accept", "to relax"],
+    answer: "to demand"
+  },
+  {
+    question: "When workers demand better pay, 'demand' means: (يطالب)",
+    options: ["requests strongly", "shouts", "runs", "listens"],
+    answer: "requests strongly"
+  },
+
+  // compensate
+  {
+    question: "What is the meaning of 'compensate'? (يعوِّض)",
+    options: ["to punish", "to compensate", "to ignore", "to disturb"],
+    answer: "to compensate"
+  },
+  {
+    question: "The firm will compensate you for damages. (يعوِّض)",
+    options: ["cover losses", "hide problems", "create issues", "refuse help"],
+    answer: "cover losses"
+  },
+
+  // casualty
+  {
+    question: "What does 'casualty' mean...? (ضحية/مصاب)",
+    options: ["victim", "winner", "leader", "survivor"],
+    answer: "victim"
+  },
+  {
+    question: "'There were many casualties in the crash.' (ضحايا)",
+    options: ["survivors", "victims", "refugees", "travelers"],
+    answer: "victims"
+  },
+
+  // bias
+  {
+    question: "What is 'bias'? (انحياز/تحامل)",
+    options: ["neutrality", "bias", "justice", "balance"],
+    answer: "bias"
+  },
+  {
+    question: "News coverage showed a strong bias. (تحامل)",
+    options: ["fairness", "prejudice", "respect", "care"],
+    answer: "prejudice"
+  },
+
+  // omission
+  {
+    question: "Meaning of 'omission'? (إغفال/حذف)",
+    options: ["inclusion", "omission", "creation", "answer"],
+    answer: "omission"
+  },
+  {
+    question: "His omission of key details changed the story. (حذف)",
+    options: ["addition", "removal", "highlight", "mention"],
+    answer: "removal"
+  },
+
+  // persuade
+  {
+    question: "What does 'persuade' mean? (يقنع)",
+    options: ["to force", "to persuade", "to ignore", "to argue"],
+    answer: "to persuade"
+  },
+  {
+    question: "Can you persuade her to come? (يقنع)",
+    options: ["convince", "warn", "delay", "avoid"],
+    answer: "convince"
+  },
+
+  // pun
+  {
+    question: "What is a 'pun'? (تورية/مِزْحة لفظية)",
+    options: ["a silent remark", "a pun", "a long story", "a fact"],
+    answer: "a pun"
+  },
+  {
+    question: "'Time flies like an arrow; fruit flies like a banana.' is a pun! (تورية)",
+    options: ["joke", "pun", "lie", "error"],
+    answer: "pun"
+  },
+
+  // reroute
+  {
+    question: "Meaning of 'reroute'? (يعيد توجيه)",
+    options: ["cancel", "reroute", "delay", "board"],
+    answer: "reroute"
+  },
+  {
+    question: "They had to reroute traffic after the crash. (يُعيد التوجيه)",
+    options: ["divert", "stop", "delay", "record"],
+    answer: "divert"
+  },
+
+  // restate
+  {
+    question: "What does 'restate' mean? (يعيد صياغة)",
+    options: ["to forget", "to restate", "to ignore", "to steal"],
+    answer: "to restate"
+  },
+  {
+    question: "Please restate your idea more clearly. (يُعيد الصياغة)",
+    options: ["repeat", "hide", "remove", "translate"],
+    answer: "repeat"
+  },
+
+  // nosy
+  {
+    question: "Meaning of 'nosy'? (فضولي)",
+    options: ["shy", "nosy", "quiet", "tired"],
+    answer: "nosy"
+  },
+  {
+    question: "She’s so nosy she reads my messages! (فضولي)",
+    options: ["busy", "nosy", "angry", "honest"],
+    answer: "nosy"
+  },
+
+  // tabloid
+  {
+    question: "What is a 'tabloid'? (صحيفة شعبية)",
+    options: ["novel", "tabloid", "manual", "report"],
+    answer: "tabloid"
+  },
+  {
+    question: "He reads tabloids full of gossip. (صحف ترفيهية)",
+    options: ["textbooks", "tabloids", "journals", "essays"],
+    answer: "tabloids"
+  },
+
+  // — Part B: Without Arabic Translations —
+
+  // demand
+  {
+    question: "She demands respect from everyone.",
+    options: ["asks politely", "requests firmly", "forgives easily", "creates rules"],
+    answer: "requests firmly"
+  },
+  {
+    question: "They demanded answers after the accident.",
+    options: ["asked calmly", "ignored it", "demanded firmly", "celebrated"],
+    answer: "demanded firmly"
+  },
+
+  // compensate
+  {
+    question: "He compensated his friend for the lost money.",
+    options: ["ignored", "replaced", "compensated", "criticized"],
+    answer: "compensated"
+  },
+  {
+    question: "The refund will compensate you for the broken item.",
+    options: ["charge", "compensate", "remove", "hide"],
+    answer: "compensate"
+  },
+
+  // casualty
+  {
+    question: "Many casualties were reported after the explosion.",
+    options: ["survivors", "casualties", "bystanders", "witnesses"],
+    answer: "casualties"
+  },
+  {
+    question: "War often brings heavy casualties.",
+    options: ["victims", "winners", "leaders", "protests"],
+    answer: "victims"
+  },
+
+  // bias
+  {
+    question: "The judge showed a clear personal bias.",
+    options: ["neutrality", "bias", "knowledge", "power"],
+    answer: "bias"
+  },
+  {
+    question: "Media bias can influence public opinion.",
+    options: ["honesty", "bias", "precision", "comfort"],
+    answer: "bias"
+  },
+
+  // omission
+  {
+    question: "His omission of evidence hurt their case.",
+    options: ["details", "omission", "addition", "focus"],
+    answer: "omission"
+  },
+  {
+    question: "An unintentional omission cost him the job.",
+    options: ["mistake", "addition", "omission", "hint"],
+    answer: "omission"
+  },
+
+  // persuade
+  {
+    question: "We tried to persuade him to join.",
+    options: ["warn", "persuade", "force", "ignore"],
+    answer: "persuade"
+  },
+  {
+    question: "Nothing could persuade her to stay.",
+    options: ["convince", "force", "threaten", "limit"],
+    answer: "convince"
+  },
+
+  // pun
+  {
+    question: "He loves making puns during speeches.",
+    options: ["facts", "puns", "promises", "errors"],
+    answer: "puns"
+  },
+  {
+    question: "A pun plays on words with multiple meanings.",
+    options: ["jokes", "puns", "songs", "notes"],
+    answer: "puns"
+  },
+
+  // reroute
+  {
+    question: "The app will reroute you around traffic.",
+    options: ["ignore", "reroute", "cancel", "sell"],
+    answer: "reroute"
+  },
+  {
+    question: "They rerouted the river’s flow after flooding.",
+    options: ["diverted", "deleted", "delayed", "dropped"],
+    answer: "diverted"
+  },
+
+  // restate
+  {
+    question: "Let me restate what you just said.",
+    options: ["forget", "repeat", "delete", "ignore"],
+    answer: "repeat"
+  },
+  {
+    question: "To avoid confusion, restate your point clearly.",
+    options: ["break", "resta te", "restate", "resolve"],
+    answer: "restate"
+  },
+
+  // nosy
+  {
+    question: "Don’t be nosy—this is private.",
+    options: ["quiet", "nosy", "happy", "proud"],
+    answer: "nosy"
+  },
+  {
+    question: "Children can be nosy about everything.",
+    options: ["shy", "nosy", "tired", "smart"],
+    answer: "nosy"
+  },
+
+  // tabloid
+  {
+    question: "She bought a tabloid at the station.",
+    options: ["novel", "tabloid", "manual", "comic"],
+    answer: "tabloid"
+  },
+  {
+    question: "He often reads tabloids for gossip.",
+    options: ["newspapers", "magazines", "tabloids", "journals"],
+    answer: "tabloids"
+  },
+
+  // ...continue until 200+ total questions
+];
+
+
+ 
+
+    let currentQuestion = 0;
+    const total = questions.length;
+
+    const qElem = document.getElementById("question");
+    const optElem = document.getElementById("options");
+    const progress = document.getElementById("progress");
+
+    function loadQuestion(index) {
+      const q = questions[index];
+      qElem.textContent = q.question;
+      optElem.innerHTML = "";
+      q.options.forEach(opt => {
+        const btn = document.createElement("button");
+        btn.textContent = opt;
+        btn.className = "option";
+        btn.onclick = () => checkAnswer(btn, q.answer);
+        optElem.appendChild(btn);
+      });
+      progress.textContent = `Question ${index + 1} / ${total}`;
+    }
+
+    function checkAnswer(btn, answer) {
+      if (btn.textContent === answer) {
+        btn.classList.add("correct");
+        fadeOthers(btn);
+        setTimeout(() => nextQuestion(), 1000);
+      } else {
+        btn.classList.add("incorrect");
+        setTimeout(() => btn.classList.remove("incorrect"), 400);
+      }
+    }
+
+    function fadeOthers(correctBtn) {
+      document.querySelectorAll(".option").forEach(b => {
+        if (b !== correctBtn) b.classList.add("faded");
+      });
+    }
+
+    function nextQuestion() {
+      if (currentQuestion < total - 1) {
+        currentQuestion++;
+        loadQuestion(currentQuestion);
+      }
+    }
+
+    function prevQuestion() {
+      if (currentQuestion > 0) {
+        currentQuestion--;
+        loadQuestion(currentQuestion);
+      }
+    }
+
+    // === SETTINGS PANEL ===
+    const settingsBtn = document.getElementById("toggle-settings");
+    const settingsPanel = document.getElementById("settings-panel");
+
+    settingsBtn.onclick = () => {
+      settingsPanel.style.display = settingsPanel.style.display === "block" ? "none" : "block";
+    };
+
+    document.getElementById("fontSizeQ").oninput = e => {
+      document.documentElement.style.setProperty('--question-font-size', `${e.target.value}px`);
+    };
+    document.getElementById("fontSizeOpt").oninput = e => {
+      document.documentElement.style.setProperty('--option-font-size', `${e.target.value}px`);
+    };
+
+    document.getElementById("toggleAnim").onchange = e => {
+      if (e.target.checked) {
+        document.body.style.animation = "gradientShift 15s ease infinite";
+      } else {
+        document.body.style.animation = "none";
+      }
+    };
+
+    document.getElementById("switchColor").onchange = e => {
+      if (e.target.checked) {
+        document.documentElement.style.setProperty('--accent-color', '#f7cac9');
+      } else {
+        document.documentElement.style.setProperty('--accent-color', '#b5ead7');
+      }
+    };
+
+    loadQuestion(currentQuestion);
+  </script>
+</body>
+</html>
